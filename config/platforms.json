@@ -1,0 +1,72 @@
+{
+  "platforms": {
+    "freshdesk_demo": {
+      "name": "Freshdesk Demo",
+      "url": "https://demo.freshdesk.com/support/tickets/new",
+      "type": "support_system",
+      "authentication": "none",
+      "selectors": {
+        "email": "#helpdesk_ticket_email",
+        "subject": "#helpdesk_ticket_subject",
+        "description": "#helpdesk_ticket_description",
+        "priority": "#helpdesk_ticket_priority",
+        "submit": "input[type='submit']"
+      },
+      "successIndicators": [
+        "ticket has been created",
+        "thank you for contacting",
+        "ticket number"
+      ]
+    },
+    "typeform_demo": {
+      "name": "Typeform Demo",
+      "url": "https://form.typeform.com/to/demo",
+      "type": "form_builder",
+      "authentication": "none",
+      "navigation": "sequential",
+      "selectors": {
+        "nextButton": "button[data-qa='next-button']",
+        "submitButton": "button[data-qa='submit-button']",
+        "textInput": "input[type='text']",
+        "textArea": "textarea"
+      }
+    },
+    "generic_contact": {
+      "name": "Generic Contact Form",
+      "url": "https://example.com/contact",
+      "type": "contact_form",
+      "authentication": "none",
+      "detection": "automatic",
+      "commonPatterns": {
+        "email": ["email", "e-mail", "mail", "contact"],
+        "subject": ["subject", "title", "topic", "regarding"],
+        "message": ["message", "description", "details", "comment", "inquiry"]
+      }
+    }
+  },
+  "fallbackSelectors": {
+    "email": [
+      "input[type='email']",
+      "input[name*='email']",
+      "#email",
+      "input[placeholder*='email']"
+    ],
+    "subject": [
+      "input[name*='subject']",
+      "#subject",
+      "input[placeholder*='subject']"
+    ],
+    "description": [
+      "textarea",
+      "#message",
+      "textarea[name*='message']",
+      "#description"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:contains('Submit')",
+      "button:contains('Send')"
+    ]
+  }
+}

@@ -1,3 +1,4 @@
+// src/adapters/base-adapter.ts
 import { Page } from "playwright";
 import { TicketData, SubmissionResult } from "../models/ticket";
 import { FormMapping } from "../models/form-mapping";
@@ -11,10 +12,11 @@ export abstract class BaseAdapter {
     this.url = url;
   }
 
-  abstract async detectForm(page: Page): Promise<FormMapping>;
-  abstract async fillForm(page: Page, ticketData: TicketData): Promise<void>;
-  abstract async submitForm(page: Page): Promise<void>;
-  abstract async verifySubmission(page: Page): Promise<SubmissionResult>;
+  // Abstract methods cannot be async - return Promise instead
+  abstract detectForm(page: Page): Promise<FormMapping>;
+  abstract fillForm(page: Page, ticketData: TicketData): Promise<void>;
+  abstract submitForm(page: Page): Promise<void>;
+  abstract verifySubmission(page: Page): Promise<SubmissionResult>;
 
   async execute(page: Page, ticketData: TicketData): Promise<SubmissionResult> {
     try {
@@ -33,9 +35,12 @@ export abstract class BaseAdapter {
       // Verify
       return await this.verifySubmission(page);
     } catch (error) {
+      // Type error properly
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       return {
         success: false,
-        error: error.message,
+        error: errorMessage,
         platform: this.platform,
         timestamp: new Date(),
       };

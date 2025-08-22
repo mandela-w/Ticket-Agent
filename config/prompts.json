@@ -1,0 +1,18 @@
+{
+  "formAnalysis": {
+    "system": "You are an expert at analyzing HTML forms and understanding their structure. You need to map user data to form fields accurately.",
+    "userTemplate": "Analyze this form structure and create a mapping:\n\nHTML Structure:\n{htmlStructure}\n\nData to map:\n{userData}\n\nProvide a JSON response with field selectors and confidence scores."
+  },
+  "errorRecovery": {
+    "system": "You are helping to recover from a form submission error. Analyze what went wrong and suggest alternative approaches.",
+    "userTemplate": "Error encountered: {error}\nPage state: {pageState}\nAttempted action: {action}\n\nSuggest recovery steps."
+  },
+  "fieldDetection": {
+    "system": "You are an expert at detecting form fields even when they have non-standard implementations.",
+    "userTemplate": "Find the most likely selector for a {fieldType} field given these candidates:\n{candidates}\n\nContext: {pageContext}"
+  },
+  "successVerification": {
+    "system": "You need to determine if a form submission was successful based on page changes.",
+    "userTemplate": "Before submission: {beforeState}\nAfter submission: {afterState}\n\nWas the submission successful? What indicators support your conclusion?"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "commonPatterns": {
+    "email": {
+      "attributes": ["type=email", "name*=email", "id*=email"],
+      "labels": ["email", "e-mail", "email address"],
+      "placeholders": ["email", "your email", "enter email"]
+    },
+    "subject": {
+      "attributes": ["name*=subject", "id*=subject"],
+      "labels": ["subject", "title", "regarding"],
+      "placeholders": ["subject", "what is this about"]
+    },
+    "description": {
+      "tags": ["textarea"],
+      "attributes": ["name*=message", "name*=description", "id*=message"],
+      "labels": ["message", "description", "details", "how can we help"],
+      "placeholders": ["describe your issue", "tell us more"]
+    },
+    "category": {
+      "tags": ["select"],
+      "attributes": ["name*=category", "name*=type", "id*=category"],
+      "labels": ["category", "type", "department"]
+    },
+    "priority": {
+      "tags": ["select", "input[type=radio]"],
+      "attributes": ["name*=priority", "id*=priority"],
+      "labels": ["priority", "urgency"],
+      "values": ["low", "medium", "high", "urgent", "critical"]
+    },
+    "submit": {
+      "tags": ["button", "input[type=submit]"],
+      "text": ["submit", "send", "create ticket", "contact us", "get help"],
+      "attributes": ["type=submit"]
+    }
+  },
+  "platformSpecific": {
+    "zendesk": {
+      "emailField": "#request_anonymous_requester_email",
+      "subjectField": "#request_subject",
+      "descriptionField": "#request_description"
+    },
+    "freshdesk": {
+      "emailField": "#helpdesk_ticket_email",
+      "subjectField": "#helpdesk_ticket_subject",
+      "descriptionField": "#helpdesk_ticket_description"
+    },
+    "hubspot": {
+      "emailField": "input[name='email']",
+      "subjectField": "input[name='subject']",
+      "descriptionField": "textarea[name='message']"
+    }
+  }
+}

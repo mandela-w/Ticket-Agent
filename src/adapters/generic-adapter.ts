@@ -1,8 +1,40 @@
+// src/adapters/generic-adapter.ts
 import { Page } from "playwright";
 import { BaseAdapter } from "./base-adapter";
 import { TicketData, SubmissionResult } from "../models/ticket";
 import { FormMapping, FormField } from "../models/form-mapping";
-import * as selectorsConfig from "../../config/selectors.json";
+
+// Define the structure for form elements
+interface FormElement {
+  tag: string;
+  type: string | null;
+  name: string | null;
+  id: string;
+  className: string;
+  placeholder: string | null;
+  ariaLabel: string | null;
+  required: boolean;
+  visible: boolean;
+  selector: string;
+  score?: number;
+}
+
+// Define the structure for selector patterns
+interface SelectorPatterns {
+  attributes?: string[];
+  labels?: string[];
+  placeholders?: string[];
+  tags?: string[];
+  text?: string[];
+}
+
+interface SelectorsConfig {
+  commonPatterns: {
+    [key: string]: SelectorPatterns;
+  };
+}
+
+const selectorsConfig: SelectorsConfig = require("../../config/selectors.json");
 
 export class GenericAdapter extends BaseAdapter {
   constructor(url: string) {
@@ -25,68 +57,84 @@ export class GenericAdapter extends BaseAdapter {
     };
   }
 
-  private async analyzeFormStructure(page: Page): Promise<any> {
-    return await page.evaluate(() => {
+  private async analyzeFormStructure(page: Page): Promise<FormElement[]> {
+    // Execute in browser context
+    const formElements = await page.evaluate(() => {
+      const generateSelector = (element: any): string => {
+        if (element.id) return `#${element.id}`;
+        if (element.className) {
+          const classes = element.className.split(" ").filter((c: any) => c);
+          if (classes.length) return `.${classes.join(".")}`;
+        }
+        const name = element.getAttribute("name");
+        if (name) {
+          return `${element.tagName.toLowerCase()}[name="${name}"]`;
+        }
+        return element.tagName.toLowerCase();
+      };
+
+      // Get all form inputs
       const inputs = Array.from(
         document.querySelectorAll("input, textarea, select")
       );
 
-      return inputs.map((el) => {
+      // Map to our structure
+      return inputs.map((el: any) => {
         const rect = el.getBoundingClientRect();
+
         return {
           tag: el.tagName.toLowerCase(),
           type: el.getAttribute("type"),
           name: el.getAttribute("name"),
-          id: el.id,
-          className: el.className,
+          id: el.id || "",
+          className: el.className || "",
           placeholder: el.getAttribute("placeholder"),
           ariaLabel: el.getAttribute("aria-label"),
           required: el.hasAttribute("required"),
           visible: rect.width > 0 && rect.height > 0,
-          selector: this.generateSelector(el),
+          selector: generateSelector(el),
         };
       });
     });
-  }
 
-  private generateSelector(element: Element): string {
-    if (element.id) return `#${element.id}`;
-    if (element.className) {
-      const classes = element.className.split(" ").filter((c) => c);
-      if (classes.length) return `.${classes.join(".")}`;
-    }
-    if (element.getAttribute("name")) {
-      return `${element.tagName.toLowerCase()}[name="${element.getAttribute(
-        "name"
-      )}"]`;
-    }
-    return element.tagName.toLowerCase();
+    // Type assertion to ensure TypeScript knows the return type
+    return formElements as FormElement[];
   }
 
   private async findField(
-    page: Page,
+    _page: Page,
     fieldType: string,
-    structure: any[]
+    structure: FormElement[]
   ): Promise<FormField> {
     const patterns = selectorsConfig.commonPatterns[fieldType];
 
+    if (!patterns) {
+      return {
+        selector: "",
+        type: "text",
+        required: false,
+      };
+    }
+
     // Score each element based on how well it matches our patterns
-    const candidates = structure.map((el) => {
+    const candidates = structure.map((el: FormElement) => {
       let score = 0;
 
       // Check attributes
-      patterns.attributes?.forEach((attr) => {
+      patterns.attributes?.forEach((attr: string) => {
         if (this.matchesPattern(el, attr)) score += 3;
       });
 
       // Check labels
-      patterns.labels?.forEach((label) => {
-        const text = `${el.name} ${el.id} ${el.ariaLabel}`.toLowerCase();
+      patterns.labels?.forEach((label: string) => {
+        const text = `${el.name || ""} ${el.id || ""} ${
+          el.ariaLabel || ""
+        }`.toLowerCase();
         if (text.includes(label.toLowerCase())) score += 2;
       });
 
       // Check placeholders
-      patterns.placeholders?.forEach((placeholder) => {
+      patterns.placeholders?.forEach((placeholder: string) => {
         if (el.placeholder?.toLowerCase().includes(placeholder.toLowerCase())) {
           score += 2;
         }
@@ -99,7 +147,7 @@ export class GenericAdapter extends BaseAdapter {
     });
 
     // Sort by score and take the best match
-    candidates.sort((a, b) => b.score - a.score);
+    candidates.sort((a, b) => (b.score || 0) - (a.score || 0));
     const bestMatch = candidates[0];
 
     return {
@@ -109,16 +157,45 @@ export class GenericAdapter extends BaseAdapter {
     };
   }
 
-  private matchesPattern(element: any, pattern: string): boolean {
+  private matchesPattern(element: FormElement, pattern: string): boolean {
     if (pattern.includes("*=")) {
-      const [attr, value] = pattern.split("*=");
-      const attrValue = element[attr.replace("[", "")];
-      return attrValue?.includes(value.replace("]", ""));
+      const parts = pattern.split("*=");
+      if (parts.length !== 2) return false;
+
+      const cleanAttr = parts[0].replace("[", "");
+      const cleanValue = parts[1].replace("]", "");
+
+      // Map attribute names to element properties
+      const attrValue = this.getElementAttribute(element, cleanAttr);
+      return attrValue ? attrValue.includes(cleanValue) : false;
     } else if (pattern.includes("=")) {
-      const [attr, value] = pattern.split("=");
-      return element[attr] === value;
+      const parts = pattern.split("=");
+      if (parts.length !== 2) return false;
+
+      const attrValue = this.getElementAttribute(element, parts[0]);
+      return attrValue === parts[1];
     }
     return false;
+  }
+
+  private getElementAttribute(
+    element: FormElement,
+    attr: string
+  ): string | null {
+    switch (attr) {
+      case "type":
+        return element.type;
+      case "name":
+        return element.name;
+      case "id":
+        return element.id;
+      case "class":
+        return element.className;
+      case "placeholder":
+        return element.placeholder;
+      default:
+        return null;
+    }
   }
 
   private mapFieldType(
@@ -134,11 +211,31 @@ export class GenericAdapter extends BaseAdapter {
   private async findSubmitButton(page: Page): Promise<string> {
     const patterns = selectorsConfig.commonPatterns.submit;
 
+    if (!patterns || !patterns.text) {
+      return 'button[type="submit"], input[type="submit"]';
+    }
+
     // Try each pattern
     for (const text of patterns.text) {
-      const selector = `button:has-text("${text}"), input[value*="${text}"]`;
-      const element = await page.$(selector);
-      if (element) return selector;
+      // Use a more compatible selector format
+      const selectors = [
+        `button:text("${text}")`,
+        `input[value*="${text}"]`,
+        `button:has-text("${text}")`,
+      ];
+
+      for (const selector of selectors) {
+        try {
+          const element = await page.$(selector).catch(() => null);
+          if (element) {
+            await element.dispose();
+            return selector;
+          }
+        } catch (error) {
+          // Selector might not be valid, continue to next
+          continue;
+        }
+      }
     }
 
     // Fallback to type=submit

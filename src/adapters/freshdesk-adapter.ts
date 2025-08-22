@@ -8,7 +8,7 @@ export class FreshdeskAdapter extends BaseAdapter {
     super("freshdesk", "https://demo.freshdesk.com/support/tickets/new");
   }
 
-  async detectForm(page: Page): Promise<FormMapping> {
+  async detectForm(_page: Page): Promise<FormMapping> {
     // Freshdesk has predictable selectors
     return {
       platform: "freshdesk",

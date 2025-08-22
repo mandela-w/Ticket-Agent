@@ -28,7 +28,7 @@ export class ScreenshotHandler {
       fullPage: true,
       encoding: "base64",
     });
-    return screenshot as string;
+    return screenshot as unknown as string;
   }
 
   async compareScreenshots(before: string, after: string): Promise<boolean> {

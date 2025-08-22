@@ -5,6 +5,8 @@ import { LLMAnalyzer } from "./llm-analyzer";
 import { ActionPlanner } from "./action-planner";
 import { DOMAnalyzer } from "../browser/dom-analyzer";
 import { Logger } from "../utils/logger";
+import { AgentConfig } from "../models/agent-config";
+import { AgentPlan, ActionStep } from "../models/agent-response";
 
 export class UniversalTicketAgent {
   private browserController: BrowserController;
@@ -38,10 +40,13 @@ export class UniversalTicketAgent {
         const result = await this.submitToPlatform(ticketData, platform);
         results.push(result);
       } catch (error) {
-        this.logger.error(`Failed to submit to ${platform}:`, error);
+        // Proper error handling
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        this.logger.error(`Failed to submit to ${platform}:`, errorMessage);
         results.push({
           success: false,
-          error: error.message,
+          error: errorMessage,
           platform,
           timestamp: new Date(),
         });
@@ -99,7 +104,9 @@ export class UniversalTicketAgent {
 
     // Verify submission
     const success = await this.verifySubmission(page);
-    const screenshot = await page.screenshot({ encoding: "base64" });
+
+    const screenshotBuffer = await page.screenshot();
+    const screenshot = screenshotBuffer.toString("base64");
 
     return {
       success,
@@ -117,19 +124,27 @@ export class UniversalTicketAgent {
 
     switch (step.action) {
       case "fill":
-        await page.fill(step.target!, step.value);
+        if (step.target) {
+          await page.fill(step.target, step.value);
+        }
         break;
       case "select":
-        await page.selectOption(step.target!, step.value);
+        if (step.target) {
+          await page.selectOption(step.target, step.value);
+        }
         break;
       case "click":
-        await page.click(step.target!);
+        if (step.target) {
+          await page.click(step.target);
+        }
         break;
       case "wait":
         await page.waitForTimeout(step.value || 1000);
         break;
       case "verify":
-        await page.waitForSelector(step.target!, { timeout: 5000 });
+        if (step.target) {
+          await page.waitForSelector(step.target, { timeout: 5000 });
+        }
         break;
     }
   }

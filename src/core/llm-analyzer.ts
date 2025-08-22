@@ -50,7 +50,6 @@ export class LLMAnalyzer {
 
   private async callLLM(prompt: string): Promise<any> {
     // For demo purposes, return a mocked intelligent response
-    // In production, integrate with OpenAI/Claude API
 
     return {
       emailField: 'input[type="email"], input[name*="email"], #email',

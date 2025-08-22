@@ -1,3 +1,15 @@
+// src/index.ts - Main entry point and exports
+export { UniversalTicketAgent } from "./core/agent";
+export { TicketData, SubmissionResult } from "./models/ticket";
+export { AgentConfig } from "./models/agent-config";
+export { AgentPlan, ActionStep } from "./models/agent-response";
+export { FormMapping, FormField } from "./models/form-mapping";
+export { BaseAdapter } from "./adapters/base-adapter";
+export { GenericAdapter } from "./adapters/generic-adapter";
+export { FreshdeskAdapter } from "./adapters/freshdesk-adapter";
+export { Logger } from "./utils/logger";
+
+// Main execution function for CLI usage
 import { UniversalTicketAgent } from "./core/agent";
 import { TicketData } from "./models/ticket";
 
@@ -46,5 +58,3 @@ async function main() {
 if (require.main === module) {
   main();
 }
-
-export { UniversalTicketAgent, TicketData };

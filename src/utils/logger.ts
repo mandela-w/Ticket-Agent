@@ -13,8 +13,12 @@ export class Logger {
     console.log(`[${this.context}] DEBUG:`, message, ...args);
   }
 
-  error(message: string, ...args: any[]): void {
-    console.error(`[${this.context}] ERROR:`, message, ...args);
+  error(message: string, error?: any): void {
+    if (error) {
+      console.error(`[${this.context}] ERROR:`, message, error);
+    } else {
+      console.error(`[${this.context}] ERROR:`, message);
+    }
   }
 
   warn(message: string, ...args: any[]): void {
