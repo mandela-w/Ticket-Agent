@@ -2,7 +2,6 @@ import { UniversalTicketAgent } from "../../src/core/agent";
 import { TicketData } from "../../src/models/ticket";
 import { GenericAdapter } from "../../src/adapters/generic-adapter";
 import { chromium, Browser, Page } from "playwright";
-import test, { beforeEach, afterEach, describe } from "node:test";
 import { FormField } from "../../src/models/form-mapping";
 
 describe("Universal Ticket Agent - Full Flow", () => {
@@ -396,14 +395,3 @@ export default {
   setupFilesAfterEnv: ["./tests/setup.ts"],
   testEnvironment: "node",
 };
-function beforeAll(arg0: () => Promise<void>) {
-  throw new Error("Function not implemented.");
-}
-
-function afterAll(arg0: () => Promise<void>) {
-  throw new Error("Function not implemented.");
-}
-
-function expect(email: FormField) {
-  throw new Error("Function not implemented.");
-}

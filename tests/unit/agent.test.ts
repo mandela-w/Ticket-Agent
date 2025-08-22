@@ -13,8 +13,8 @@ describe("UniversalTicketAgent", () => {
     await agent.shutdown();
   });
 
-  test("should validate ticket data", () => {
-    const invalidTicket = { email: "invalid" };
-    expect(() => agent.submitTicket(invalidTicket, [])).toThrow();
+  test("should validate ticket data", async () => {
+    const invalidTicket: any = { email: "invalid" };
+    await expect(agent.submitTicket(invalidTicket, [])).rejects.toThrow();
   });
 });

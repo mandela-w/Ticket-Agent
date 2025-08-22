@@ -24,11 +24,11 @@ export class ScreenshotHandler {
   }
 
   async captureBase64(page: Page): Promise<string> {
-    const screenshot = await page.screenshot({
+    const screenshotBuffer = await page.screenshot({
       fullPage: true,
-      encoding: "base64",
+      type: "png",
     });
-    return screenshot as unknown as string;
+    return screenshotBuffer.toString("base64");
   }
 
   async compareScreenshots(before: string, after: string): Promise<boolean> {

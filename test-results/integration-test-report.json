@@ -1,0 +1,38 @@
+{
+  "timestamp": "2025-08-22T13:54:58.500Z",
+  "totalTests": 3,
+  "passed": 1,
+  "failed": 2,
+  "errors": 0,
+  "avgDuration": 22528,
+  "results": [
+    {
+      "testCase": "Valid Ticket Submission",
+      "result": "FAIL",
+      "submissionResult": {
+        "success": false,
+        "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[name*=\"email\"], #email')\u001b[22m\n",
+        "platform": "generic_test",
+        "timestamp": "2025-08-22T13:54:24.389Z"
+      },
+      "duration": 34390
+    },
+    {
+      "testCase": "Missing Required Field",
+      "result": "PASS",
+      "reason": "Validation failed as expected",
+      "duration": 0
+    },
+    {
+      "testCase": "Long Description",
+      "result": "FAIL",
+      "submissionResult": {
+        "success": false,
+        "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"email\"], input[name*=\"email\"], #email')\u001b[22m\n",
+        "platform": "generic_test",
+        "timestamp": "2025-08-22T13:54:57.586Z"
+      },
+      "duration": 33194
+    }
+  ]
+}
